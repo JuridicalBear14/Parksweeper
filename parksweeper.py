@@ -11,20 +11,35 @@ shownBoard = []
 
 root = Tk()
 root.geometry("500x500")
+root.configure(background = "gray")
 
 
-txt = Label(root, text = "Parsweeper")
-txt.grid(row = 0, column = 0)
+#txt = Label(root, text = "Parsweeper")
+#txt.grid(row = 0, column = 0)
 
 buttons = []
 rows = 10
 columns = 10
+MINE_SIZE = 3
+
+#Flags mines upon right click
+def flag(event):
+    global buttons
+    global hiddenBoard
+
+    if (event.widget["text"] == "" and event.widget["background"] == "gray"):
+        event.widget.config(text = "#", foreground = "red")
+
+    elif (event.widget["text"] == "#"):
+        event.widget.config(text = "")
+
 
 for i in range(rows):
     buttons.append([])
     for n in range(columns):
-        buttons[i].append(Button(root, padx = 10, pady = 10, text = "#", background = "gray", command = lambda r = (i,n): check(r)))
+        buttons[i].append(Button(root, width = MINE_SIZE, height = MINE_SIZE - 2, text = "", background = "gray", command = lambda r = (i,n): check(r)))
         buttons[i][n].grid(row = i + 1, column = n)
+        buttons[i][n].bind("<Button-3>", flag)
 
 
 
@@ -68,6 +83,7 @@ def check(square):
 
     elif (hiddenBoard[row][col] == 0): #Is empty
         buttons[row][col].config(background = "white", text = "")
+
 
 
 
