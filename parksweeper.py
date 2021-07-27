@@ -10,16 +10,16 @@ shownBoard = []
 
 
 root = Tk()
-root.geometry("500x500")
+root.geometry("650x600")
 root.configure(background = "gray")
-
+root.title("Parksweeper")
 
 #txt = Label(root, text = "Parsweeper")
 #txt.grid(row = 0, column = 0)
 
 buttons = []
-rows = 10
-columns = 10
+rows = 20
+columns = 20
 MINE_SIZE = 3
 MINE_ODDS = 4
 
