@@ -10,7 +10,7 @@ shownBoard = []
 
 
 root = Tk()
-root.geometry("650x600")
+root.geometry("800x700")
 root.configure(background = "gray")
 root.title("Parksweeper")
 
@@ -50,9 +50,40 @@ def flag(event):
     if (event.widget["text"] == "" and event.widget["background"] == "gray"):
         event.widget.config(text = "", background = "red")
 
+    elif event.widget["background"] == "red":
+        event.widget.config(background = "gray")
+
     elif (event.widget["text"] == "#"):
         event.widget.config(text = "")
 
+
+#Method for quick opening fulfilled numbers
+def quickOpen(row, col):
+    global hiddenBoard
+    global buttons
+
+    num = hiddenBoard[row][col]
+
+    for i in range(-1, 2):
+        for n in range(-1, 2):
+            if (len(hiddenBoard) > i + row > -1 and len(hiddenBoard[row]) > n + col > -1): #Makes sure square is in range
+                if buttons[row + i][col + n]["background"] == "red": #If flagged
+                    num -= 1
+
+    if num == 0: #If the number was exactly fulfilled
+        for i in range(-1, 2):
+            for n in range(-1, 2):
+                if (len(hiddenBoard) > i + row > -1 and len(hiddenBoard[row]) > n + col > -1): #Makes sure square is in range
+
+                    if not buttons[row + i][col + n]["background"] == "red": #If not flagged
+
+                        buttons[row + i][col + n].config(background = "white") #Makes background white
+
+                        if hiddenBoard[row + i][col + n] > 0: #Not empty
+                            buttons[row + i][col + n].config(text = hiddenBoard[row + i][col + n])
+
+                        else: #Is empty
+                            openField(row + i, col + n)
 
 
 #Checks buttons when clicked
@@ -63,15 +94,21 @@ def check(square):
     row = square[0]
     col = square[1]
 
-    if (hiddenBoard[row][col] == -1): #Is mine
-        buttons[row][col].config(background = "yellow", text = "")
+    if not buttons[row][col]["background"] == "red":
 
-    elif (hiddenBoard[row][col] == 0): #Is empty
-        buttons[row][col].config(background = "white", text = "")
-        openField(row, col)
 
-    else:
-        buttons[row][col].config(background = "white", text = hiddenBoard[row][col])
+        if (hiddenBoard[row][col] == -1): #Is mine
+            buttons[row][col].config(background = "yellow", text = "")
+
+        elif (hiddenBoard[row][col] == 0): #Is empty
+            buttons[row][col].config(background = "white", text = "")
+            openField(row, col)
+
+        elif hiddenBoard[row][col] > 0 and buttons[row][col]["background"] == "white": #Is opened number
+            quickOpen(row, col)
+
+        else:
+            buttons[row][col].config(background = "white", text = hiddenBoard[row][col])
 
 
 #Sets buttons
@@ -79,10 +116,42 @@ def setButtons():
     for i in range(rows):
         buttons.append([])
         for n in range(columns):
-            buttons[i].append(Button(root, width = MINE_SIZE, height = MINE_SIZE - 2, background = "gray", command = lambda r = (i,n): check(r)))
+            buttons[i].append(Button(root, width = MINE_SIZE, height = MINE_SIZE - 2, background = "gray", font = ("bold"), command = lambda r = (i,n): check(r)))
             buttons[i][n].grid(row = i + 1, column = n)
             buttons[i][n].bind("<Button-3>", flag)
 
+
+#Sets the colors for all the number
+def setColors():
+    global hiddenBoard
+    global buttons
+
+    for i in range(len(hiddenBoard)):
+        for n in range(len(hiddenBoard[i])):
+
+            if hiddenBoard[i][n] == 1:
+                buttons[i][n].config(foreground = "blue")
+
+            if hiddenBoard[i][n] == 2:
+                buttons[i][n].config(foreground = "green")
+
+            if hiddenBoard[i][n] == 3:
+                buttons[i][n].config(foreground = "red")
+
+            if hiddenBoard[i][n] == 4:
+                buttons[i][n].config(foreground = "purple")
+
+            if hiddenBoard[i][n] == 5:
+                buttons[i][n].config(foreground = "brown")
+
+            if hiddenBoard[i][n] == 6:
+                buttons[i][n].config(foreground = "orange")
+
+            if hiddenBoard[i][n] == 7:
+                buttons[i][n].config(foreground = "black")
+
+            if hiddenBoard[i][n] == 8:
+                buttons[i][n].config(foreground = "yellow")
 
 
 #Sets the board up
@@ -125,4 +194,5 @@ def setMines():
 
 setMines()
 setButtons()
+setColors()
 root.mainloop()
