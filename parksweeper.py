@@ -75,6 +75,11 @@ def quickOpen(row, col):
             for n in range(-1, 2):
                 if (len(hiddenBoard) > i + row > -1 and len(hiddenBoard[row]) > n + col > -1): #Makes sure square is in range
 
+                    if buttons[row + i][col + n]["text"] == "": #If isn't already opened
+
+                        check((row + i, col + n))
+
+                    '''
                     if not buttons[row + i][col + n]["background"] == "red": #If not flagged
 
                         buttons[row + i][col + n].config(background = "white") #Makes background white
@@ -83,7 +88,7 @@ def quickOpen(row, col):
                             buttons[row + i][col + n].config(text = hiddenBoard[row + i][col + n])
 
                         else: #Is empty
-                            openField(row + i, col + n)
+                            openField(row + i, col + n)'''
 
 
 #Checks buttons when clicked
@@ -98,7 +103,7 @@ def check(square):
 
 
         if (hiddenBoard[row][col] == -1): #Is mine
-            buttons[row][col].config(background = "yellow", text = "")
+            buttons[row][col].config(background = "red", text = "")
 
         elif (hiddenBoard[row][col] == 0): #Is empty
             buttons[row][col].config(background = "white", text = "")
