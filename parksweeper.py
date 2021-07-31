@@ -23,6 +23,12 @@ columns = 20
 MINE_SIZE = 3
 MINE_ODDS = 4
 
+#nav = LabelFrame(root, width = 38 * rows, height = 100, background = "dim gray")
+#nav.grid(row = 0, columnspan = rows)
+
+#reset = Button(nav, width = 10, height = 5, background = "gray")
+#reset.pack()
+
 
 #Opens fields of empty squares
 def openField(i, n):
