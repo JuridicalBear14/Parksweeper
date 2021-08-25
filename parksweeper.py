@@ -11,23 +11,23 @@ shownBoard = []
 
 root = Tk()
 root.geometry("800x700")
-root.configure(background = "gray")
+root.configure(background = "dim gray")
 root.title("Parksweeper")
 
 #txt = Label(root, text = "Parsweeper")
 #txt.grid(row = 0, column = 0)
 
 buttons = []
-rows = 20
-columns = 20
+rows = 14
+columns = 14
 MINE_SIZE = 3
 MINE_ODDS = 4
 
-#nav = LabelFrame(root, width = 38 * rows, height = 100, background = "dim gray")
-#nav.grid(row = 0, columnspan = rows)
+nav = LabelFrame(root, width = 38 * columns, height = 100, background = "dim gray")
+nav.grid(row = 0, columnspan = columns)
 
-#reset = Button(nav, width = 10, height = 5, background = "gray")
-#reset.pack()
+reset = Button(nav, width = 10, height = 5, background = "gray", command = lambda: reset())
+reset.pack()
 
 
 #Opens fields of empty squares
@@ -202,8 +202,22 @@ def setMines():
                             if (hiddenBoard[row + i][col + n] != -1): #Not a mine
                                 hiddenBoard[row + i][col + n] += 1
 
+#Resets board visuals and then calls setup again
+def reset():
+    for i in range(rows):
 
-setMines()
-setButtons()
-setColors()
+        for n in range(columns):
+
+            buttons[i][n].configure(background = "gray", text = "")
+    hiddenBoard.clear()
+    setup()
+
+#Sets up all the data for a new game
+def setup():
+    setMines()
+    setButtons()
+    setColors()
+
+setup()
+
 root.mainloop()
