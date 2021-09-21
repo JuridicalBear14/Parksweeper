@@ -22,6 +22,7 @@ rows = 14
 columns = 14
 MINE_SIZE = 3
 MINE_ODDS = 4
+mine_count = 30
 
 nav = LabelFrame(root, width = 38 * columns, height = 100, background = "dim gray")
 nav.grid(row = 0, columnspan = columns)
@@ -202,6 +203,36 @@ def setMines():
                             if (hiddenBoard[row + i][col + n] != -1): #Not a mine
                                 hiddenBoard[row + i][col + n] += 1
 
+
+#SetMines, but better
+def newSetMines():
+    global rows
+    global hiddenBoard
+    global buttons
+    global mine_count
+
+    placed = 0
+
+    setBoards(rows)
+
+    while(placed < mine_count): #Picks random square
+        row = random.randint(0, rows - 1)
+        col = random.randint(0, rows - 1)
+
+        if hiddenBoard[row][col] != -1: #Not a mine
+            placed += 1
+
+            hiddenBoard[row][col] = -1 #Set as a mine
+
+            #Loop to add one to each bordering square
+            for r in range(-1, 2):
+                for c in range(-1, 2):
+                    #Makes sure a given value is within hiddenBoard
+                    if (len(hiddenBoard) > r + row > -1 and len(hiddenBoard[row]) > c + col > -1):
+                        if (hiddenBoard[row + r][col + c] != -1): #Not a mine
+                            hiddenBoard[row + r][col + c] += 1
+        
+
 #Resets board visuals and then calls setup again
 def reset():
     for i in range(rows):
@@ -214,7 +245,7 @@ def reset():
 
 #Sets up all the data for a new game
 def setup():
-    setMines()
+    newSetMines()
     setButtons()
     setColors()
 
