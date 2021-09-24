@@ -19,16 +19,21 @@ root.title("Parksweeper")
 
 buttons = []
 rows = 14
-columns = 14
+columns = 21
 MINE_SIZE = 3
-MINE_ODDS = 4
 mine_count = 30
 
-nav = LabelFrame(root, width = 38 * columns, height = 100, background = "dim gray")
-nav.grid(row = 0, columnspan = columns)
+#nav = LabelFrame(root, width = 38 * columns, height = 100, background = "dim gray")
+#nav.grid(row = 0, columnspan = columns)
 
-reset = Button(nav, width = 10, height = 5, background = "gray", command = lambda: reset())
-reset.pack()
+reset = Button(root, width = 10, height = 5, background = "gray", command = lambda: reset())
+reset.grid(row = 0, column = int(columns / 2) - 1, columnspan = 3)
+
+settings_button = Button(root, width = 10, height = 5, background = "gray", command = lambda: settings())
+settings_button.grid(row = 0, column = 0, columnspan = 3)
+
+mine_counter = Label(root, width = 10, height = 5, background = "gray", text = mine_count, foreground = "red", font = ("Arial", 10))
+mine_counter.grid(row = 0, column = columns - 3, columnspan = 3)
 
 
 #Opens fields of empty squares
@@ -53,15 +58,16 @@ def openField(i, n):
 def flag(event):
     global buttons
     global hiddenBoard
+    global mine_counter
 
     if (event.widget["text"] == "" and event.widget["background"] == "gray"):
         event.widget.config(text = "", background = "red")
+        mine_counter.config(text = str(int(mine_counter["text"]) - 1))
 
     elif event.widget["background"] == "red":
         event.widget.config(background = "gray")
+        mine_counter.config(text = str(int(mine_counter["text"]) + 1))
 
-    elif (event.widget["text"] == "#"):
-        event.widget.config(text = "")
 
 
 #Method for quick opening fulfilled numbers
@@ -111,6 +117,7 @@ def check(square):
 
         if (hiddenBoard[row][col] == -1): #Is mine
             buttons[row][col].config(background = "red", text = "")
+            mine_counter.config(text = str(int(mine_counter["text"]) - 1)) #Ticks mine counter down, only useful for no loss mode
 
         elif (hiddenBoard[row][col] == 0): #Is empty
             buttons[row][col].config(background = "white", text = "")
@@ -131,6 +138,14 @@ def setButtons():
             buttons[i].append(Button(root, width = MINE_SIZE, height = MINE_SIZE - 2, background = "gray", font = ("bold"), command = lambda r = (i,n): check(r)))
             buttons[i][n].grid(row = i + 1, column = n)
             buttons[i][n].bind("<Button-3>", flag)
+
+
+#Seperate window for settings
+def settings():
+    set_root = Tk()
+    set_root.geometry("300x300")
+    set_root.configure(background = "dim gray")
+    set_root.title("Settings")
 
 
 #Sets the colors for all the number
@@ -167,57 +182,33 @@ def setColors():
 
 
 #Sets the board up
-def setBoards(size):
+def setBoards(rows, columns):
     global shownBoard
     global hiddenBoard
 
-    for row in range(size):
+    for row in range(rows):
 
         shownBoard.append([0]), hiddenBoard.append([0])
-        for col in range(size - 1):
+        for col in range(columns - 1):
             shownBoard[row].append(0)
             hiddenBoard[row].append(0)
-
-#Sets the mines and numbers in the hidden board
-def setMines(): 
-    global rows
-    global hiddenBoard
-    global buttons
-    global MINE_ODDS
-
-    setBoards(rows)
-
-    #Sets the mines based on the mine odds
-    for i in range(len(hiddenBoard)):
-
-        for n in range(len(hiddenBoard[i])):
-
-            if (random.randint(1, MINE_ODDS) == 3):
-                hiddenBoard[i][n] = -1
-
-                #Loop to add one to each bordering square
-                for row in range(-1, 2):
-                    for col in range(-1, 2):
-                        #Makes sure a given value is within hiddenBoard
-                        if (len(hiddenBoard) > i + row > -1 and len(hiddenBoard[row]) > n + col > -1):
-                            if (hiddenBoard[row + i][col + n] != -1): #Not a mine
-                                hiddenBoard[row + i][col + n] += 1
 
 
 #SetMines, but better
 def newSetMines():
     global rows
+    global columns
     global hiddenBoard
     global buttons
     global mine_count
 
     placed = 0
 
-    setBoards(rows)
+    setBoards(rows, columns)
 
     while(placed < mine_count): #Picks random square
         row = random.randint(0, rows - 1)
-        col = random.randint(0, rows - 1)
+        col = random.randint(0, columns - 1)
 
         if hiddenBoard[row][col] != -1: #Not a mine
             placed += 1
