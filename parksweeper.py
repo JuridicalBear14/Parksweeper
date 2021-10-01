@@ -3,6 +3,7 @@
 import random as random
 from random import randint
 from tkinter import *
+import settings
 
 hiddenBoard = []
 
@@ -142,10 +143,12 @@ def setButtons():
 
 #Seperate window for settings
 def settings():
-    set_root = Tk()
-    set_root.geometry("300x300")
-    set_root.configure(background = "dim gray")
-    set_root.title("Settings")
+    settings.run()
+
+
+#Reads settings from doc
+def readSettings():
+    pass
 
 
 #Sets the colors for all the number
