@@ -1,5 +1,5 @@
-height=
-width=
-rows=
-cols=
-mines=
+height=800
+width=800
+rows=14
+cols=21
+mines=30

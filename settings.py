@@ -1,9 +1,14 @@
 from tkinter import *
-    
-set_root = Tk()
-set_root.geometry("300x300")
-set_root.configure(background = "dim gray")
-set_root.title("Settings")
+
+set_root = None
+
+def setWindow():
+    global set_root
+
+    set_root = Tk()
+    set_root.geometry("300x300")
+    set_root.configure(background = "dim gray")
+    set_root.title("Settings")
 
 
 #PLaces elements on screen
@@ -53,8 +58,11 @@ def updateValues():
 
 #Opens the settings window
 def run():
+    global set_root
+
+    setWindow()
     placeElements()
+    set_root.mainloop()
 
 run()
 
-set_root.mainloop()

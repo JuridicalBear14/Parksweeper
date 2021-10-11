@@ -3,7 +3,7 @@
 import random as random
 from random import randint
 from tkinter import *
-import settings
+from settings import run
 
 hiddenBoard = []
 
@@ -143,7 +143,7 @@ def setButtons():
 
 #Seperate window for settings
 def settings():
-    settings.run()
+    run()
 
 
 #Reads settings from doc
