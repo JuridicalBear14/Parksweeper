@@ -234,6 +234,7 @@ def reset():
         for n in range(columns):
 
             buttons[i][n].configure(background = "gray", text = "")
+    mine_count = 30 #REPLACE LATER, SHOULDN'T BE HARDCODED
     hiddenBoard.clear()
     setup()
 
