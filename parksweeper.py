@@ -11,7 +11,7 @@ shownBoard = []
 
 
 root = Tk()
-root.geometry("800x700")
+root.geometry("900x600")
 root.configure(background = "dim gray")
 root.title("Parksweeper")
 
@@ -19,8 +19,8 @@ root.title("Parksweeper")
 #txt.grid(row = 0, column = 0)
 
 buttons = []
-rows = 14
-columns = 21
+rows = 12
+columns = 20
 MINE_SIZE = 3
 mine_count = 30
 
@@ -229,12 +229,15 @@ def newSetMines():
 
 #Resets board visuals and then calls setup again
 def reset():
+    global mine_count
+
     for i in range(rows):
 
         for n in range(columns):
 
             buttons[i][n].configure(background = "gray", text = "")
     mine_count = 30 #REPLACE LATER, SHOULDN'T BE HARDCODED
+    mine_counter.config(text = mine_count)
     hiddenBoard.clear()
     setup()
 
