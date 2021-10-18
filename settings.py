@@ -28,7 +28,7 @@ def placeElements():
     window_label = Label(set_root, width = 40, height = 1, background = "green", text = "Window Size")
     window_label.pack()
 
-    set_screen = Button(set_root, width = 25, height = 2, background = "gray", text = "Set default screen size")
+    set_screen = Button(set_root, width = 25, height = 2, background = "gray", text = "Set default screen size", command = setScreen)
     set_screen.pack()
 
     row_label = Label(set_root, width = 40, height = 1, background = "blue", text = "Rows and Columns")
@@ -49,10 +49,10 @@ def placeElements():
     set_mines = Entry(set_root, width = 25)
     set_mines.pack()
 
-    auto_mine = Button(set_root, width = 25, height = 2, background = "gray", text = "Auto set mines")
+    auto_mine = Button(set_root, width = 25, height = 2, background = "gray", text = "Auto set mines", command = autoMine)
     auto_mine.pack()
 
-    done = Button(set_root, width = 40, height = 3, background = "gray", text = "DONE")
+    done = Button(set_root, width = 40, height = 3, background = "gray", text = "DONE", command = updateValues)
     done.pack()
 
 #Puts existing values into placed elements
@@ -60,6 +60,7 @@ def setValues():
     global height
     global width
 
+    #Opens settings file and formats its info into settings
     f = open("parSets.txt", "r")
     height = f.readline().lower().replace("height=", "").strip()
     width = f.readline().lower().replace("width=", "").strip()
@@ -67,11 +68,13 @@ def setValues():
     set_cols.insert(0, f.readline().lower().replace("cols=", "").strip())
     set_mines.insert(0, f.readline().lower().replace("mines=", "").strip())
 
+    f.close()
+
 
 
 #Auto sets rows and cols based on window size
 def autoRow():
-
+    #Squares are 62 pixels tall and I guess 43 wide, and even then it varies by computer :(
     set_rows.delete(0, END)
     set_rows.insert(0, str(int(int(height) / 62)))
 
@@ -80,15 +83,36 @@ def autoRow():
 
 #Automatically sets mine num based on board size
 def autoMine():
-    pass
+    rows = int(set_rows.get())
+    cols = int(set_cols.get())
 
-#Updates values in settings file
+    mines = int(rows * cols / 5) #Makes a 5th of the board mines
+
+    set_mines.delete(0, END)
+    set_mines.insert(0, str(mines))
+
+#Updates values in settings file and then closes the program
 def updateValues():
-    pass
+    f = open("parSets.txt", "w")
+
+    #Was this the most effective way to do this? I'm not sure, but it works
+    f.write("height=" + str(height) + "\n")
+    f.write("width=" + str(width) + "\n")
+    f.write("rows=" + set_rows.get() + "\n")
+    f.write("cols=" + set_cols.get() + "\n")
+    f.write("mines=" + set_mines.get())
+
+    set_root.destroy() #Closes setting window
 
 #Sets screen height and width
 def setScreen():
-    pass
+    global height
+    global width
+    
+    height = set_root.winfo_height()
+    width = set_root.winfo_width()
+
+    #print(height, width)
 
 #Opens the settings window
 def run():

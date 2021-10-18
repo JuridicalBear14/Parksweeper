@@ -27,10 +27,10 @@ mine_count = 30
 #nav = LabelFrame(root, width = 38 * columns, height = 100, background = "dim gray")
 #nav.grid(row = 0, columnspan = columns)
 
-reset = Button(root, width = 10, height = 5, background = "gray", command = lambda: reset())
+reset = Button(root, width = 10, height = 5, background = "gray", command = lambda: reset)
 reset.grid(row = 0, column = int(columns / 2) - 1, columnspan = 3)
 
-settings_button = Button(root, width = 10, height = 5, background = "gray", command = lambda: settings())
+settings_button = Button(root, width = 10, height = 5, background = "gray", command = lambda: settings)
 settings_button.grid(row = 0, column = 0, columnspan = 3)
 
 mine_counter = Label(root, width = 10, height = 5, background = "gray", text = mine_count, foreground = "red", font = ("Arial", 10))
