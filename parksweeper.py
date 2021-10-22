@@ -7,34 +7,47 @@ from settings import run
 
 hiddenBoard = []
 
-shownBoard = []
+#shownBoard = [] #Doesn't really do anything, but also con't be removed?
 
 
 root = Tk()
-root.geometry("900x600")
-root.configure(background = "dim gray")
-root.title("Parksweeper")
 
 #txt = Label(root, text = "Parsweeper")
 #txt.grid(row = 0, column = 0)
 
 buttons = []
-rows = 12
-columns = 20
+rows = 10
+columns = 10
 MINE_SIZE = 3
-mine_count = 30
+mine_count = 20
+height = 600
+width = 900
+
+mine_counter = None
+settings_button = None
+reset = None
+
+#Sets up the main window
+def setWindow():
+    root.geometry("900x600")
+    root.configure(background = "dim gray")
+    root.title("Parksweeper")
 
 #nav = LabelFrame(root, width = 38 * columns, height = 100, background = "dim gray")
 #nav.grid(row = 0, columnspan = columns)
 
-reset = Button(root, width = 10, height = 5, background = "gray", command = lambda: reset)
-reset.grid(row = 0, column = int(columns / 2) - 1, columnspan = 3)
+#Sets up interface buttons
+def set_interface():
+    global mine_counter
 
-settings_button = Button(root, width = 10, height = 5, background = "gray", command = lambda: settings)
-settings_button.grid(row = 0, column = 0, columnspan = 3)
+    reset = Button(root, width = 10, height = 5, background = "gray", command = lambda: reset)
+    reset.grid(row = 0, column = int(columns / 2) - 1, columnspan = 3)
 
-mine_counter = Label(root, width = 10, height = 5, background = "gray", text = mine_count, foreground = "red", font = ("Arial", 10))
-mine_counter.grid(row = 0, column = columns - 3, columnspan = 3)
+    settings_button = Button(root, width = 10, height = 5, background = "gray", command = lambda: settings)
+    settings_button.grid(row = 0, column = 0, columnspan = 3)
+
+    mine_counter = Label(root, width = 10, height = 5, background = "gray", text = mine_count, foreground = "red", font = ("Arial", 10))
+    mine_counter.grid(row = 0, column = columns - 3, columnspan = 3)
 
 
 #Opens fields of empty squares
@@ -143,12 +156,21 @@ def setButtons():
 
 #Seperate window for settings
 def settings():
-    run()
+    run() #Calls itself in settings
 
 
 #Reads settings from doc
 def readSettings():
-    pass
+    global height, width, rows, columns, mine_count
+
+    f = open("parSets.txt", "r")
+    height = int(f.readline().lower().replace("height=", "").strip())
+    width = int(f.readline().lower().replace("width=", "").strip())
+    rows = int(f.readline().lower().replace("rows=", "").strip())
+    columns = int(f.readline().lower().replace("cols=", "").strip())
+    mine_count = int(f.readline().lower().replace("mines=", "").strip())
+
+    f.close()
 
 
 #Sets the colors for all the number
@@ -186,14 +208,15 @@ def setColors():
 
 #Sets the board up
 def setBoards(rows, columns):
-    global shownBoard
+    #global shownBoard
     global hiddenBoard
 
     for row in range(rows):
 
-        shownBoard.append([0]), hiddenBoard.append([0])
+        #shownBoard.append([0]),
+        hiddenBoard.append([0])
         for col in range(columns - 1):
-            shownBoard[row].append(0)
+            #shownBoard[row].append(0)
             hiddenBoard[row].append(0)
 
 
@@ -236,13 +259,14 @@ def reset():
         for n in range(columns):
 
             buttons[i][n].configure(background = "gray", text = "")
-    mine_count = 30 #REPLACE LATER, SHOULDN'T BE HARDCODED
-    mine_counter.config(text = mine_count)
     hiddenBoard.clear()
     setup()
 
 #Sets up all the data for a new game
 def setup():
+    readSettings()
+    setWindow()
+    set_interface()
     newSetMines()
     setButtons()
     setColors()
