@@ -1,5 +1,0 @@
-height=300
-width=300
-rows=16
-cols=16
-mines=22

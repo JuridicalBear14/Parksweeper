@@ -9,28 +9,29 @@ hiddenBoard = []
 
 shownBoard = []
 
+buttons = []
+rows = 10
+columns = 10
+MINE_SIZE = 3
+mine_count = 30
 
 root = Tk()
-root.geometry("900x600")
+root.geometry("900x900")
 root.configure(background = "dim gray")
 root.title("Parksweeper")
 
 #txt = Label(root, text = "Parsweeper")
 #txt.grid(row = 0, column = 0)
 
-buttons = []
-rows = 12
-columns = 20
-MINE_SIZE = 3
-mine_count = 30
+
 
 #nav = LabelFrame(root, width = 38 * columns, height = 100, background = "dim gray")
 #nav.grid(row = 0, columnspan = columns)
 
-reset = Button(root, width = 10, height = 5, background = "gray", command = lambda: reset)
+reset = Button(root, width = 10, height = 5, background = "red", command = lambda: reset())
 reset.grid(row = 0, column = int(columns / 2) - 1, columnspan = 3)
 
-settings_button = Button(root, width = 10, height = 5, background = "gray", command = lambda: settings)
+settings_button = Button(root, width = 10, height = 5, background = "gray", command = lambda: settings())
 settings_button.grid(row = 0, column = 0, columnspan = 3)
 
 mine_counter = Label(root, width = 10, height = 5, background = "gray", text = mine_count, foreground = "red", font = ("Arial", 10))
@@ -148,7 +149,21 @@ def settings():
 
 #Reads settings from doc
 def readSettings():
-    pass
+    global rows
+    global columns
+    global mine_count
+
+    file = open("parSets.txt", "r")
+
+    height = int(file.readline().replace("height=", ""))
+    width = int(file.readline().replace("width=", ""))
+
+    rows = int(file.readline().replace("rows=", ""))
+    columns = int(file.readline().replace("cols=", ""))
+    mine_count = int(file.readline().replace("mines=", ""))
+
+    file.close()
+
 
 
 #Sets the colors for all the number
@@ -236,7 +251,7 @@ def reset():
         for n in range(columns):
 
             buttons[i][n].configure(background = "gray", text = "")
-    mine_count = 30 #REPLACE LATER, SHOULDN'T BE HARDCODED
+    readSettings()
     mine_counter.config(text = mine_count)
     hiddenBoard.clear()
     setup()
