@@ -7,7 +7,7 @@ from settings import run
 
 hiddenBoard = []
 
-shownBoard = []
+#shownBoard = [] #Doesn't really do anything, but also con't be removed?
 
 buttons = []
 rows = 10
@@ -24,7 +24,6 @@ root.title("Parksweeper")
 #txt.grid(row = 0, column = 0)
 
 
-
 #nav = LabelFrame(root, width = 38 * columns, height = 100, background = "dim gray")
 #nav.grid(row = 0, columnspan = columns)
 
@@ -34,8 +33,8 @@ reset.grid(row = 0, column = int(columns / 2) - 1, columnspan = 3)
 settings_button = Button(root, width = 10, height = 5, background = "gray", command = lambda: settings())
 settings_button.grid(row = 0, column = 0, columnspan = 3)
 
-mine_counter = Label(root, width = 10, height = 5, background = "gray", text = mine_count, foreground = "red", font = ("Arial", 10))
-mine_counter.grid(row = 0, column = columns - 3, columnspan = 3)
+    mine_counter = Label(root, width = 10, height = 5, background = "gray", text = mine_count, foreground = "red", font = ("Arial", 10))
+    mine_counter.grid(row = 0, column = columns - 3, columnspan = 3)
 
 
 #Opens fields of empty squares
@@ -144,7 +143,7 @@ def setButtons():
 
 #Seperate window for settings
 def settings():
-    run()
+    run() #Calls itself in settings
 
 
 #Reads settings from doc
@@ -201,14 +200,15 @@ def setColors():
 
 #Sets the board up
 def setBoards(rows, columns):
-    global shownBoard
+    #global shownBoard
     global hiddenBoard
 
     for row in range(rows):
 
-        shownBoard.append([0]), hiddenBoard.append([0])
+        #shownBoard.append([0]),
+        hiddenBoard.append([0])
         for col in range(columns - 1):
-            shownBoard[row].append(0)
+            #shownBoard[row].append(0)
             hiddenBoard[row].append(0)
 
 
@@ -258,6 +258,9 @@ def reset():
 
 #Sets up all the data for a new game
 def setup():
+    readSettings()
+    setWindow()
+    set_interface()
     newSetMines()
     setButtons()
     setColors()
