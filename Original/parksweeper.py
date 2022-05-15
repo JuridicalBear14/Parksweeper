@@ -33,8 +33,8 @@ reset.grid(row = 0, column = int(columns / 2) - 1, columnspan = 3)
 settings_button = Button(root, width = 10, height = 5, background = "gray", command = lambda: settings())
 settings_button.grid(row = 0, column = 0, columnspan = 3)
 
-    mine_counter = Label(root, width = 10, height = 5, background = "gray", text = mine_count, foreground = "red", font = ("Arial", 10))
-    mine_counter.grid(row = 0, column = columns - 3, columnspan = 3)
+mine_counter = Label(root, width = 10, height = 5, background = "gray", text = mine_count, foreground = "red", font = ("Arial", 10))
+mine_counter.grid(row = 0, column = columns - 3, columnspan = 3)
 
 
 #Opens fields of empty squares
