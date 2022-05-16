@@ -21,12 +21,15 @@ YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 GRAY = (100, 100, 100)
-TILE_SIZE = 100 #Size of each tile (always square)
+TILE_SIZE = 60 #Size of each tile (always square)
+COLUMNS = screen_size[0] // TILE_SIZE
+ROWS = screen_size[1] // TILE_SIZE  - 1 #-1 because of nav bar
+COLOR_DICT = {-1: RED, 0: WHITE, 1: GREEN, 2: GREEN, 3: GREEN, 4: GREEN, 5: GREEN, 6: GREEN, 7: GREEN, 8: GREEN}
 
 #Game variables
 hidden = []
 shown = []
-mines = 18
+mines = 30
 
 #Functions
 def draw_grid(screen, size):
@@ -38,6 +41,35 @@ def draw_grid(screen, size):
     for i in range(0, height, TILE_SIZE): #Draws horizontal lines
         pg.draw.line(screen, (0, 0, 0), (0, i), (width, i))
 
+def quick_open(row, col):
+    '''Opens all surrounding tiles of a fulfilled tile'''
+    global hidden
+
+    num = hidden[row][col]
+
+    #Check that the tile's mine count is fulfilled
+    for n in range(-1, 2):
+        for i in range(-1, 2):
+            if (len(hidden) > row + n > -1 and len(hidden[row + n]) > col + i > -1): #Check that the tile is in bounds
+                if shown[row + n][col + i] == -1: #If the tile is flagged
+                    num -= 1
+
+    if num == 0: #If the mine count is fulfilled, open all surrounding tiles
+        for n in range(-1, 2):
+            for i in range(-1, 2):
+                if (len(hidden) > row + n > -1 and len(hidden[row + n]) > col + i > -1): #Check that the tile is in bounds
+                    if hidden[row + n][col + i] != -1 and shown[row + n][col + i] == 9: #If the tile isn't a mine and not flagged
+                        update_tile(col + i, row + n, 1)
+
+    
+
+def open_field(x, y):
+    '''Opens a field of zeros'''
+    for r in range(-1, 2):
+        for c in range(-1, 2):
+            if (len(hidden) > r + y > -1 and len(hidden[y]) > c + x > -1):
+                if (shown[y + r][x + c] == 9):
+                    update_tile(x + c, y + r, 1)
 
 def on_click(x, y, button):
     '''Handles logic for when a game tile is clicked'''
@@ -47,42 +79,75 @@ def on_click(x, y, button):
             setup()
 
     else: #Clicked game tile
-        update_tile(x // 100, y // 100, button)
+        y -= TILE_SIZE #Offset for nav bar
+        update_tile(x // TILE_SIZE, y // TILE_SIZE, button)
 
 
 def update_tile(x, y, button):
     '''Updates given tile with value'''
+    global mines
 
-    if button == 1: #Left click
-        num = str(hidden[x][y])
-        text = gen_text(TILE_SIZE).render(num, False, GREEN)
+    if button == 1 and (shown[y][x] != -1): #Left click and not flagged
+        if (shown[y][x] == 9): #Unopened
+            if hidden[y][x] == -1: #If a mine, lose
+                pg.draw.rect(screen, RED, (x * TILE_SIZE + 1, (y + 1) * TILE_SIZE + 1, TILE_SIZE - 1, TILE_SIZE - 1))
+                shown[y][x] = -1
+                mines -= 1
 
-        pg.draw.rect(screen, WHITE, (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
-        #X is plus 1/4 tile size because the num is half the tile width, while y is 1/8 because the num is 6/8 the tile height
-        screen.blit(text, (x * TILE_SIZE + (TILE_SIZE // 4), y * TILE_SIZE + (TILE_SIZE // 8))) #Draw text at center of tile
+            else: #If not a mine
+
+                num = str(hidden[y][x])
+                shown[y][x] = num
+                text = gen_text(TILE_SIZE).render(num, False, COLOR_DICT[int(num)])
+
+                pg.draw.rect(screen, WHITE, (x * TILE_SIZE + 1, (y + 1) * TILE_SIZE + 1, TILE_SIZE -1, TILE_SIZE -1)) #The pluses and minuses are to keep the grid lines
+
+                #X is plus 1/4 tile size because the num is half the tile width, while y is 1/8 because the num is 6/8 the tile height
+                screen.blit(text, (x * TILE_SIZE + (TILE_SIZE // 4), (y + 1) * TILE_SIZE + (TILE_SIZE // 8))) #Draw text at center of tile
+
+        else: #Opened
+            quick_open(y, x)
+
+        if hidden[y][x] == 0: #If no mines around, recursively call update_tile on surrounding tiles
+            open_field(x, y)
 
     elif button == 3: #Right click
-        pg.draw.rect(screen, RED, (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+        if shown[y][x] == -1: #If already flagged
+            pg.draw.rect(screen, GRAY, (x * TILE_SIZE + 1, (y + 1) * TILE_SIZE + 1, TILE_SIZE - 1, TILE_SIZE - 1))
+            shown[y][x] = 9
+            mines += 1
+
+        elif shown[y][x] == 9: #If an unopened square
+            pg.draw.rect(screen, RED, (x * TILE_SIZE + 1, (y + 1) * TILE_SIZE + 1, TILE_SIZE - 1, TILE_SIZE - 1))
+            shown[y][x] = -1
+            mines -= 1
+
+def draw_mine_count():
+    '''Draws the mine count on the nav bar'''
+    text = gen_text(int(TILE_SIZE * 0.9)).render(str(mines), False, WHITE)
+    rect = pg.draw.rect(screen, GRAY, (screen_size[0] - TILE_SIZE + 1, 1, TILE_SIZE - 1, TILE_SIZE - 1))
+    rect.center = (screen_size[0] - TILE_SIZE // 2, TILE_SIZE // 2)
+    screen.blit(text, rect)
 
 def fill_boards():
     '''Fills the hidden and shown boards'''
-    rows = screen_size[0] // TILE_SIZE
-    columns = screen_size[1] // TILE_SIZE
+    rows = ROWS
+    columns = COLUMNS
 
     for i in range(rows):
         hidden.append([])
         shown.append([])
         for j in range(columns):
             hidden[i].append(0)
-            shown[i].append(0)
+            shown[i].append(9)
 
 
 def set_mines():
     '''Fills the hidden board with randomly generated mine pattern'''
     placed = 0
-    rows = screen_size[0] // TILE_SIZE
-    columns = screen_size[1] // TILE_SIZE
+    rows = ROWS
+    columns = COLUMNS
 
     fill_boards()
 
@@ -102,6 +167,10 @@ def set_mines():
                     if (len(hidden) > r + row > -1 and len(hidden[row]) > c + col > -1):
                         if (hidden[row + r][col + c] != -1): #Not a mine
                             hidden[row + r][col + c] += 1
+
+    #Print board for testing
+    for i in range(rows):
+        print(hidden[i])
     
 def setup():
     '''Sets up the game'''
@@ -117,6 +186,7 @@ def setup():
     global mines; mines = 18
 
     set_mines()
+    draw_mine_count()
     draw_grid(screen, screen_size)
     update()
 
@@ -138,4 +208,5 @@ if __name__ == "__main__":
                 y = pos[1]
 
                 on_click(x, y, event.button)
+                draw_mine_count()
                 update()
