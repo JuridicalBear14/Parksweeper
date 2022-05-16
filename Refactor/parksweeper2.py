@@ -1,18 +1,19 @@
 #Parker Lowney 5/14/22
 #Here we go again
 
+from asyncio.windows_events import NULL
 import pygame as pg
 import os
 import random
 import json
 
 #Import saved settings
-settings = json.load(open('settings.json'))["settings"]
+settings = json.load(open("Refactor\\settings.json"))["settings"]
 
 #Game settings
-TILE_SIZE = 60 #Size of each tile (always square) (MINIMUM SIZE: 40)
-COLUMNS = 20
-ROWS = 13
+TILE_SIZE = 40 #Size of each tile (always square) 
+COLUMNS = 12
+ROWS = 12
 
 #Window setup
 pg.init()
@@ -30,7 +31,7 @@ YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 GRAY = (100, 100, 100)
-DEFAULT_MINE_COUNT = 30 #The mine count to return to after each game
+DEFAULT_MINE_COUNT = 20 #The mine count to return to after each game (MUST BE AT LEAST 1/16th OF THE TOTAL TILE COUNT; SHOULD BE ABOUT 1/5th)
 COLOR_DICT = {-1: RED, 0: WHITE, 1: GREEN, 2: GREEN, 3: GREEN, 4: GREEN, 5: GREEN, 6: GREEN, 7: GREEN, 8: GREEN}
 
 #Game variables
@@ -69,15 +70,31 @@ def quick_open(row, col):
                     if hidden[row + n][col + i] != -1 and shown[row + n][col + i] == 9: #If the tile isn't a mine and not flagged
                         update_tile(col + i, row + n, 1)
 
-    
 
 def open_field(x, y):
     '''Opens a field of zeros'''
     for r in range(-1, 2):
         for c in range(-1, 2):
-            if (len(hidden) > r + y > -1 and len(hidden[y]) > c + x > -1):
+            if (len(hidden) > r + y > -1 and len(hidden[y]) > c + x > -1): #Loops through each surrounding tile and makes sure it's valid
                 if (shown[y + r][x + c] == 9):
-                    update_tile(x + c, y + r, 1)
+                    #Open it
+                    open_tile(x + c, y + r)
+
+                    if (hidden[y + r][x + c] == 0): #If also 0, call this function
+                        open_field(x + c, y + r)
+
+
+def open_tile(x, y):
+    '''Opens a given tile (seperated from update_tile for use elsewhere'''
+    num = str(hidden[y][x])
+    shown[y][x] = num
+    text = gen_text(TILE_SIZE).render(num, False, COLOR_DICT[int(num)])
+
+    pg.draw.rect(screen, WHITE, (x * TILE_SIZE + 1, (y + 1) * TILE_SIZE + 1, TILE_SIZE -1, TILE_SIZE -1)) #The pluses and minuses are to keep the grid lines
+
+    #X is plus 1/4 tile size because the num is half the tile width, while y is 1/8 because the num is 6/8 the tile height
+    screen.blit(text, (x * TILE_SIZE + (TILE_SIZE // 4), (y + 1) * TILE_SIZE + (TILE_SIZE // 8))) #Draw text at center of tile
+    
 
 
 def on_click(x, y, button):
@@ -105,15 +122,7 @@ def update_tile(x, y, button):
 
 
             else: #If not a mine
-
-                num = str(hidden[y][x])
-                shown[y][x] = num
-                text = gen_text(TILE_SIZE).render(num, False, COLOR_DICT[int(num)])
-
-                pg.draw.rect(screen, WHITE, (x * TILE_SIZE + 1, (y + 1) * TILE_SIZE + 1, TILE_SIZE -1, TILE_SIZE -1)) #The pluses and minuses are to keep the grid lines
-
-                #X is plus 1/4 tile size because the num is half the tile width, while y is 1/8 because the num is 6/8 the tile height
-                screen.blit(text, (x * TILE_SIZE + (TILE_SIZE // 4), (y + 1) * TILE_SIZE + (TILE_SIZE // 8))) #Draw text at center of tile
+                open_tile(x, y)
 
         else: #Opened
             quick_open(y, x)
