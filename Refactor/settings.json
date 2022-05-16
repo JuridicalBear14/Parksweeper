@@ -1,0 +1,23 @@
+{
+    "colors": {
+        
+    },
+    "settings": {
+        "tileSize": {
+            "value": 40,
+            "description": "The size of a tile in pixels"
+        },
+        "rows" : {
+            "value": 15,
+            "description": "The number of rows in the board"
+        },
+        "columns" : {
+            "value": 20,
+            "description": "The number of columns in the board"
+        },
+        "mineCount" : {
+            "value": 30,
+            "description": "The number of mines in the board"
+        },
+    }
+}

@@ -1,13 +1,22 @@
-#Parker lowney 5/14/22
+#Parker Lowney 5/14/22
 #Here we go again
 
 import pygame as pg
 import os
 import random
+import json
+
+#Import saved settings
+settings = json.load(open('settings.json'))["settings"]
+
+#Game settings
+TILE_SIZE = 60 #Size of each tile (always square) (MINIMUM SIZE: 40)
+COLUMNS = 20
+ROWS = 13
 
 #Window setup
 pg.init()
-screen_size = (1000, 900) #WxH
+screen_size = (COLUMNS * TILE_SIZE, (ROWS + 1) * TILE_SIZE) #WxH
 screen = pg.display.set_mode(screen_size)
 pg.display.set_caption("Parksweeper")
 
@@ -21,15 +30,13 @@ YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 GRAY = (100, 100, 100)
-TILE_SIZE = 60 #Size of each tile (always square)
-COLUMNS = screen_size[0] // TILE_SIZE
-ROWS = screen_size[1] // TILE_SIZE  - 1 #-1 because of nav bar
+DEFAULT_MINE_COUNT = 30 #The mine count to return to after each game
 COLOR_DICT = {-1: RED, 0: WHITE, 1: GREEN, 2: GREEN, 3: GREEN, 4: GREEN, 5: GREEN, 6: GREEN, 7: GREEN, 8: GREEN}
 
 #Game variables
 hidden = []
 shown = []
-mines = 30
+mines = 0
 
 #Functions
 def draw_grid(screen, size):
@@ -40,6 +47,7 @@ def draw_grid(screen, size):
         pg.draw.line(screen, (0, 0, 0), (i, TILE_SIZE), (i, height))
     for i in range(0, height, TILE_SIZE): #Draws horizontal lines
         pg.draw.line(screen, (0, 0, 0), (0, i), (width, i))
+
 
 def quick_open(row, col):
     '''Opens all surrounding tiles of a fulfilled tile'''
@@ -70,6 +78,7 @@ def open_field(x, y):
             if (len(hidden) > r + y > -1 and len(hidden[y]) > c + x > -1):
                 if (shown[y + r][x + c] == 9):
                     update_tile(x + c, y + r, 1)
+
 
 def on_click(x, y, button):
     '''Handles logic for when a game tile is clicked'''
@@ -123,12 +132,14 @@ def update_tile(x, y, button):
             shown[y][x] = -1
             mines -= 1
 
+
 def draw_mine_count():
     '''Draws the mine count on the nav bar'''
     text = gen_text(int(TILE_SIZE * 0.9)).render(str(mines), False, WHITE)
     rect = pg.draw.rect(screen, GRAY, (screen_size[0] - TILE_SIZE + 1, 1, TILE_SIZE - 1, TILE_SIZE - 1))
     rect.center = (screen_size[0] - TILE_SIZE // 2, TILE_SIZE // 2)
     screen.blit(text, rect)
+
 
 def fill_boards():
     '''Fills the hidden and shown boards'''
@@ -172,6 +183,7 @@ def set_mines():
     for i in range(rows):
         print(hidden[i])
     
+
 def setup():
     '''Sets up the game'''
     width = screen_size[0]
@@ -183,12 +195,13 @@ def setup():
     #Reset vars
     global hidden; hidden = []
     global shown; shown = []
-    global mines; mines = 18
+    global mines; mines = DEFAULT_MINE_COUNT
 
     set_mines()
     draw_mine_count()
     draw_grid(screen, screen_size)
     update()
+
 
 #Main loop
 if __name__ == "__main__":
