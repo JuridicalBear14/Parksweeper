@@ -14,8 +14,8 @@ settings = json.load(open("Refactor\\settings.json"))
 
 #Game settings
 TILE_SIZE = 40 #Size of each tile (always square) 
-COLUMNS = 18
-ROWS = 18
+COLUMNS = 20
+ROWS = 20
 
 #Window setup
 pg.init()
@@ -35,7 +35,7 @@ WHITE = (255, 255, 255)
 GRAY = (100, 100, 100)
 BLACK = (0, 0, 0)
 DARK_GRAY = (50, 50, 50)
-DEFAULT_MINE_COUNT = 20 #The mine count to return to after each game (MUST BE AT LEAST 1/16th OF THE TOTAL TILE COUNT; SHOULD BE ABOUT 1/5th)
+DEFAULT_MINE_COUNT = 80 #The mine count to return to after each game (MUST BE AT LEAST 1/16th OF THE TOTAL TILE COUNT; SHOULD BE ABOUT 1/5th)
 COLOR_DICT = settings["colors"][settings["settings"]["colorScheme"]["value"]]
 
 #Game variables
@@ -71,7 +71,7 @@ def quick_open(row, col):
         for n in range(-1, 2):
             for i in range(-1, 2):
                 if (len(hidden) > row + n > -1 and len(hidden[row + n]) > col + i > -1): #Check that the tile is in bounds
-                    if hidden[row + n][col + i] != -1 and shown[row + n][col + i] == 9: #If the tile isn't a mine and not flagged
+                    if shown[row + n][col + i] != -1 and shown[row + n][col + i] == 9: #If the tile isn't a mine and not flagged
                         update_tile(col + i, row + n, 1)
 
 
