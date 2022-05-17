@@ -1,6 +1,6 @@
 {
     "colors": {
-
+        "default": {"-1" : "FD0000", "0" : "FFFFFF", "1" : "0400FB", "2" : "027F03", "3" : "FD0001", "4" : "01017C", "5" : "7E0100", "6" : "027F7E", "7" : "000000", "8" : "808080"}
     },
     "settings": {
         "tileSize": {
@@ -18,6 +18,10 @@
         "mineCount" : {
             "value": 30,
             "description": "The number of mines in the board"
+        },
+        "colorScheme" : {
+            "value": "default",
+            "description": "The color scheme to use"
         }
     }
 }

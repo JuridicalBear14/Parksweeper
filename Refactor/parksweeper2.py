@@ -7,14 +7,15 @@ import pygame as pg
 import os
 import random
 import json
+from TBox import TBox
 
 #Import saved settings
-settings = json.load(open("Refactor\\settings.json"))["settings"]
+settings = json.load(open("Refactor\\settings.json"))
 
 #Game settings
 TILE_SIZE = 40 #Size of each tile (always square) 
-COLUMNS = 12
-ROWS = 12
+COLUMNS = 18
+ROWS = 18
 
 #Window setup
 pg.init()
@@ -32,8 +33,10 @@ YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 GRAY = (100, 100, 100)
+BLACK = (0, 0, 0)
+DARK_GRAY = (50, 50, 50)
 DEFAULT_MINE_COUNT = 20 #The mine count to return to after each game (MUST BE AT LEAST 1/16th OF THE TOTAL TILE COUNT; SHOULD BE ABOUT 1/5th)
-COLOR_DICT = {-1: RED, 0: WHITE, 1: GREEN, 2: GREEN, 3: GREEN, 4: GREEN, 5: GREEN, 6: GREEN, 7: GREEN, 8: GREEN}
+COLOR_DICT = settings["colors"][settings["settings"]["colorScheme"]["value"]]
 
 #Game variables
 hidden = []
@@ -89,7 +92,7 @@ def open_tile(x, y):
     '''Opens a given tile (seperated from update_tile for use elsewhere'''
     num = str(hidden[y][x])
     shown[y][x] = num
-    text = gen_text(TILE_SIZE).render(num, False, COLOR_DICT[int(num)])
+    text = gen_text(TILE_SIZE).render(num, False, pg.Color("#" + COLOR_DICT[num]))
 
     pg.draw.rect(screen, WHITE, (x * TILE_SIZE + 1, (y + 1) * TILE_SIZE + 1, TILE_SIZE -1, TILE_SIZE -1)) #The pluses and minuses are to keep the grid lines
 
@@ -106,11 +109,7 @@ def on_click(x, y, button):
             setup()
 
         elif (x < TILE_SIZE): #Clicked settings button
-            print("run")
             settings_menu()
-            time.sleep(2)
-            redraw_board()
-            print("redraw")
 
     else: #Clicked game tile
         y -= TILE_SIZE #Offset for nav bar
@@ -211,15 +210,69 @@ def set_mines():
                             hidden[row + r][col + c] += 1
 
     #Print board for testing
-    for i in range(rows):
-        print(hidden[i])
+    #for i in range(rows):
+    #    print(hidden[i])
 
 def settings_menu():
     '''Displays the settings menu'''
     width = screen_size[0]
-    height = screen_size[1]
-    pg.draw.rect(screen, YELLOW, ((width // 2) - TILE_SIZE * 2, (width // 2) - TILE_SIZE * 2, TILE_SIZE * 4, TILE_SIZE * 4))
-    update()
+    height = screen_size[1]  
+    active = 0
+    running = True
+
+    #Settings menu size and pos shortcuts
+    rect_pos = ((width // 2) - width * 0.3, (height // 2) - height * 0.3)
+    rect_size = (width * 0.6, height * 0.6)
+
+    #Text box size and pos shortcuts
+    box_size = (int(rect_size[0] * 0.6), int(rect_size[1] * 0.1))
+    box_pos = (int(rect_pos[0] + (rect_size[0] - box_size[0]) / 2), int(rect_pos[1] + (rect_size[1] - box_size[1]) * 0.3))
+
+    pg.draw.rect(screen, DARK_GRAY, (rect_pos[0], rect_pos[1], rect_size[0], rect_size[1]))
+    text = gen_text(15).render("Settings: (esc) to exit", False, BLACK)
+    screen.blit(text, rect_pos) #Draw text at corner of tile
+
+    #Draw text headers
+
+
+    #Three text boxes for input 0: rows, 1: columns, 2: mines
+    boxes = [] 
+
+    #Adds three boxes to boxes list, each the same size but different positions
+    for i in range(3):
+        box_pos = (int(rect_pos[0] + (rect_size[0] - box_size[0]) / 2), int(rect_pos[1] + (rect_size[1] - box_size[1]) * 0.3 * (i + 1)))
+        boxes.append(TBox(screen, size=box_size, pos=box_pos))
+
+    #The event loop for the menu
+    while running:
+
+        for event in pg.event.get():
+
+            if event.type == pg.QUIT:
+                pg.quit()
+                quit()
+
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    redraw_board()
+                    running = False
+                    break
+
+                elif event.key == pg.K_BACKSPACE:
+                    boxes[active].backspace()
+
+                elif event.unicode.isnumeric():
+                    if len(boxes[active].get_text()) < 10:
+                        boxes[active].write(event.unicode)
+
+            elif event.type == pg.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    for i in range(len(boxes)): #Check if any text boxes are clicked
+                        if boxes[i].collidepoint(event.pos):
+                            active = i
+                            break
+
+        update()
     
 
 def setup():
