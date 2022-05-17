@@ -2,6 +2,7 @@
 #Here we go again
 
 from asyncio.windows_events import NULL
+import time
 import pygame as pg
 import os
 import random
@@ -104,6 +105,13 @@ def on_click(x, y, button):
         if (x > (screen_size[0] // 2) - (TILE_SIZE // 2)) and (x < (screen_size[0] // 2) + (TILE_SIZE // 2)): #Clicked reset button
             setup()
 
+        elif (x < TILE_SIZE): #Clicked settings button
+            print("run")
+            settings_menu()
+            time.sleep(2)
+            redraw_board()
+            print("redraw")
+
     else: #Clicked game tile
         y -= TILE_SIZE #Offset for nav bar
         update_tile(x // TILE_SIZE, y // TILE_SIZE, button)
@@ -149,6 +157,20 @@ def draw_mine_count():
     rect.center = (screen_size[0] - TILE_SIZE // 2, TILE_SIZE // 2)
     screen.blit(text, rect)
 
+def redraw_board():
+    '''Redraws the board'''
+    for y in range(len(shown)):
+        for x in range(len(shown[y])):
+            if shown[y][x] != 9:
+                if shown[y][x] == -1:
+                    pg.draw.rect(screen, RED, (x * TILE_SIZE + 1, (y + 1) * TILE_SIZE + 1, TILE_SIZE - 1, TILE_SIZE - 1))
+                else:
+                    open_tile(x, y)
+            else:
+                pg.draw.rect(screen, GRAY, (x * TILE_SIZE + 1, (y + 1) * TILE_SIZE + 1, TILE_SIZE - 1, TILE_SIZE - 1))
+    draw_grid(screen, screen_size)
+    update()
+
 
 def fill_boards():
     '''Fills the hidden and shown boards'''
@@ -191,6 +213,13 @@ def set_mines():
     #Print board for testing
     for i in range(rows):
         print(hidden[i])
+
+def settings_menu():
+    '''Displays the settings menu'''
+    width = screen_size[0]
+    height = screen_size[1]
+    pg.draw.rect(screen, YELLOW, ((width // 2) - TILE_SIZE * 2, (width // 2) - TILE_SIZE * 2, TILE_SIZE * 4, TILE_SIZE * 4))
+    update()
     
 
 def setup():
@@ -200,6 +229,7 @@ def setup():
 
     #Nav bar
     pg.draw.rect(screen, YELLOW, ((width // 2) - (TILE_SIZE // 2), 0, TILE_SIZE, TILE_SIZE))
+    pg.draw.rect(screen, GREEN, (0, 0, TILE_SIZE, TILE_SIZE))
 
     #Reset vars
     global hidden; hidden = []
