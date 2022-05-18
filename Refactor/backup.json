@@ -1,0 +1,27 @@
+{
+    "colors": {
+        "default": {"-1" : "FD0000", "0" : "FFFFFF", "1" : "0400FB", "2" : "027F03", "3" : "FD0001", "4" : "01017C", "5" : "7E0100", "6" : "027F7E", "7" : "000000", "8" : "808080"}
+    },
+    "settings": {
+        "tileSize": {
+            "value": 40,
+            "description": "The size of a tile in pixels"
+        },
+        "rows" : {
+            "value": 15,
+            "description": "The number of rows in the board"
+        },
+        "columns" : {
+            "value": 20,
+            "description": "The number of columns in the board"
+        },
+        "mineCount" : {
+            "value": 30,
+            "description": "The number of mines in the board"
+        },
+        "colorScheme" : {
+            "value": "default",
+            "description": "The color scheme to use"
+        }
+    }
+}
