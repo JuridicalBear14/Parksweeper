@@ -13,15 +13,18 @@ from TBox import TBox
 settings = json.load(open("Refactor\\settings.json"))
 
 #Game settings
-TILE_SIZE = 40 #Size of each tile (always square) 
-COLUMNS = 20
-ROWS = 20
+TILE_SIZE = settings["settings"]["tileSize"]["value"] #Size of each tile (always square) 
+COLUMNS = settings["settings"]["columns"]["value"]
+ROWS = settings["settings"]["rows"]["value"]
 
 #Window setup
 pg.init()
 screen_size = (COLUMNS * TILE_SIZE, (ROWS + 1) * TILE_SIZE) #WxH
 screen = pg.display.set_mode(screen_size)
 pg.display.set_caption("Parksweeper")
+
+#Determines if the window needs to be regenerated
+regen = False
 
 #Quick shortcuts
 update = lambda : pg.display.flip() #Update screen
@@ -35,7 +38,7 @@ WHITE = (255, 255, 255)
 GRAY = (100, 100, 100)
 BLACK = (0, 0, 0)
 DARK_GRAY = (50, 50, 50)
-DEFAULT_MINE_COUNT = 80 #The mine count to return to after each game (MUST BE AT LEAST 1/16th OF THE TOTAL TILE COUNT; SHOULD BE ABOUT 1/5th)
+DEFAULT_MINE_COUNT = settings["settings"]["mineCount"]["value"] #The mine count to return to after each game (MUST BE AT LEAST 1/16th OF THE TOTAL TILE COUNT; SHOULD BE ABOUT 1/5th)
 COLOR_DICT = settings["colors"][settings["settings"]["colorScheme"]["value"]]
 
 #Game variables
@@ -103,9 +106,13 @@ def open_tile(x, y):
 
 def on_click(x, y, button):
     '''Handles logic for when a game tile is clicked'''
+    global regen, screen
 
     if y < TILE_SIZE: #Clicked nav bar
         if (x > (screen_size[0] // 2) - (TILE_SIZE // 2)) and (x < (screen_size[0] // 2) + (TILE_SIZE // 2)): #Clicked reset button
+            if regen: #Regenerates the window to apply new sizing
+                screen = pg.display.set_mode(screen_size)
+                regen = False
             setup()
 
         elif (x < TILE_SIZE): #Clicked settings button
@@ -213,6 +220,35 @@ def set_mines():
     #for i in range(rows):
     #    print(hidden[i])
 
+def write_settings(rows, cols, mines):
+    '''Writes settings to settings.json'''
+    global settings
+
+    #Sets json data
+    settings["settings"]["mineCount"]["value"] = mines
+    settings["settings"]["rows"]["value"] = rows
+    settings["settings"]["columns"]["value"] = cols
+
+    #Changes variables
+    global ROWS; ROWS = rows
+    global COLUMNS; COLUMNS = cols
+    global DEFAULT_MINE_COUNT; DEFAULT_MINE_COUNT = mines
+    #global screen_size; screen_size = (TILE_SIZE * cols, TILE_SIZE * rows + TILE_SIZE)
+    #global regen; regen = True
+
+    #Writes json data to file
+    with open("Refactor\settings.json", "w") as f:
+        #print(json.dumps(settings))
+        f.flush()
+        f.write(json.dumps(settings))
+
+def read_settings():
+    '''Reads settings from settings.json'''
+    global settings
+
+    with open("Refactor\settings.json", "r") as f:
+        settings = json.load(f)
+
 def settings_menu():
     '''Displays the settings menu'''
     width = screen_size[0]
@@ -233,15 +269,33 @@ def settings_menu():
     screen.blit(text, rect_pos) #Draw text at corner of tile
 
     #Draw text headers
+    text = gen_text(18).render("Rows:", False, BLACK)
+    screen.blit(text, (box_pos[0] - box_size[0] * 0.3, box_pos[1] * 0.9))
 
+    text = gen_text(18).render("Cols:", False, BLACK)
+    screen.blit(text, (box_pos[0] - box_size[0] * 0.3, box_pos[1] + box_size[1] * 1.3))
+
+    text = gen_text(18).render("Mines:", False, BLACK)
+    screen.blit(text, (box_pos[0] - box_size[0] * 0.3, box_pos[1] + box_size[1] * 3.1))
 
     #Three text boxes for input 0: rows, 1: columns, 2: mines
     boxes = [] 
 
     #Adds three boxes to boxes list, each the same size but different positions
     for i in range(3):
-        box_pos = (int(rect_pos[0] + (rect_size[0] - box_size[0]) / 2), int(rect_pos[1] + (rect_size[1] - box_size[1]) * 0.3 * (i + 1)))
+        box_pos = (int(rect_pos[0] + (rect_size[0] - box_size[0]) / 2), int(rect_pos[1] + (rect_size[1] - box_size[1]) * 0.2 * (i + 1)))
         boxes.append(TBox(screen, size=box_size, pos=box_pos))
+
+    #Write current settings to boxes
+    boxes[0].write(str(ROWS))
+    boxes[1].write(str(COLUMNS))
+    boxes[2].write(str(DEFAULT_MINE_COUNT))
+
+    #Draw save button
+    save_button = pg.Rect(int(rect_pos[0] + (rect_size[0] - box_size[0] * 0.6) / 2), int(rect_pos[1] + (rect_size[1] - box_size[1]) * 0.8), box_size[0] * 0.6, box_size[1] * 1.2)
+    text = gen_text(30).render("Save", False, BLACK)
+    pg.draw.rect(screen, GRAY, save_button)
+    screen.blit(text, (save_button.x + (save_button.w - text.get_width()) / 2, save_button.y + (save_button.h - text.get_height()) / 2))
 
     #The event loop for the menu
     while running:
@@ -267,10 +321,20 @@ def settings_menu():
 
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    for i in range(len(boxes)): #Check if any text boxes are clicked
-                        if boxes[i].collidepoint(event.pos):
-                            active = i
-                            break
+                    if save_button.collidepoint(event.pos):
+                        #Save settings
+                        rows = int(boxes[0].get_text())
+                        columns = int(boxes[1].get_text())
+                        mines = int(boxes[2].get_text())
+                        write_settings(rows, columns, mines)
+                        redraw_board()
+                        running = False
+                        break
+                    else:
+                        for i in range(len(boxes)): #Check if any text boxes are clicked
+                            if boxes[i].collidepoint(event.pos):
+                                active = i
+                                break
 
         update()
     
