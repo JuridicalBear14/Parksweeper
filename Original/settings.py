@@ -61,7 +61,7 @@ def setValues():
     global width
 
     #Opens settings file and formats its info into settings
-    f = open("parSets.txt", "r")
+    f = open("Original\parSets.txt", "r")
     height = f.readline().lower().replace("height=", "").strip()
     width = f.readline().lower().replace("width=", "").strip()
     set_rows.insert(0, f.readline().lower().replace("rows=", "").strip())

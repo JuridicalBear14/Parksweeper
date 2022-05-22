@@ -259,8 +259,8 @@ def reset():
 #Sets up all the data for a new game
 def setup():
     readSettings()
-    setWindow()
-    set_interface()
+    #setWindow()
+    #set_interface()
     newSetMines()
     setButtons()
     setColors()
