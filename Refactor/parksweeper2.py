@@ -2,6 +2,7 @@
 #Here we go again
 
 from asyncio.windows_events import NULL
+from imp import reload
 import time
 import pygame as pg
 import os
@@ -92,7 +93,7 @@ def open_field(x, y):
 
 
 def open_tile(x, y):
-    '''Opens a given tile (seperated from update_tile for use elsewhere'''
+    '''Opens a given tile (seperated from update_tile for use elsewhere)'''
     num = str(hidden[y][x])
     shown[y][x] = num
     text = gen_text(TILE_SIZE).render(num, False, pg.Color("#" + COLOR_DICT[num]))
@@ -106,13 +107,22 @@ def open_tile(x, y):
 
 def on_click(x, y, button):
     '''Handles logic for when a game tile is clicked'''
-    global regen, screen
+    global regen, screen, screen_size
 
     if y < TILE_SIZE: #Clicked nav bar
         if (x > (screen_size[0] // 2) - (TILE_SIZE // 2)) and (x < (screen_size[0] // 2) + (TILE_SIZE // 2)): #Clicked reset button
             if regen: #Regenerates the window to apply new sizing
-                screen = pg.display.set_mode(screen_size)
-                regen = False
+                    #Kill window
+                    pg.quit()
+                    
+                    #Redefine the window
+                    pg.init()
+                    screen_size = (COLUMNS * TILE_SIZE, (ROWS + 1) * TILE_SIZE) #WxH
+                    screen = pg.display.set_mode(screen_size)
+                    pg.display.set_caption("Parksweeper")
+
+                    #Reset regen
+                    regen = False
             setup()
 
         elif (x < TILE_SIZE): #Clicked settings button
@@ -251,6 +261,8 @@ def read_settings():
 
 def settings_menu():
     '''Displays the settings menu'''
+    global regen
+
     width = screen_size[0]
     height = screen_size[1]  
     active = 0
@@ -321,18 +333,29 @@ def settings_menu():
 
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
+
+                    #Sets size values to minimum values if necessary
+                    if active < 2 and int(boxes[active].get_text()) < 10: #If one of the size boxes is active and val is below 10, set to 10
+                        boxes[active].clear()
+                        boxes[active].write("10")
+
                     if save_button.collidepoint(event.pos):
+
                         #Save settings
                         rows = int(boxes[0].get_text())
                         columns = int(boxes[1].get_text())
                         mines = int(boxes[2].get_text())
                         write_settings(rows, columns, mines)
+
+                        regen = True #Board needs to be regenerated
                         redraw_board()
                         running = False
                         break
+
                     else:
                         for i in range(len(boxes)): #Check if any text boxes are clicked
                             if boxes[i].collidepoint(event.pos):
+                                #Set new active
                                 active = i
                                 break
 
