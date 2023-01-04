@@ -1,8 +1,9 @@
 #Parker Lowney 5/14/22
 #Here we go again
 
-from asyncio.windows_events import NULL
+#from asyncio.windows_events import NULL
 from imp import reload
+import sys
 import time
 import pygame as pg
 import os
@@ -11,7 +12,7 @@ import json
 from TBox import TBox
 
 #Import saved settings
-settings = json.load(open("Refactor\\settings.json"))
+settings = json.load(open(f"{os.path.dirname(sys.argv[0])}/settings.json"))
 
 #Game settings
 TILE_SIZE = settings["settings"]["tileSize"]["value"] #Size of each tile (always square) 
