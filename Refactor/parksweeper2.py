@@ -12,7 +12,7 @@ import json
 from TBox import TBox
 
 #Import saved settings
-settings = json.load(open(f"{os.path.dirname(sys.argv[0])}/settings.json"))
+settings = json.load(open("settings.json"))
 
 #Game settings
 TILE_SIZE = settings["settings"]["tileSize"]["value"] #Size of each tile (always square) 
